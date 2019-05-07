@@ -5,5 +5,5 @@ For 2D implementation, see the original repository: https://github.com/matterpor
 
 For knowing about 2D Mask RCNN Model and the schedule for this project: https://github.com/sankalpmittal1911-BitSian/Mask-RCNN-3D-Implementation/blob/master/Schedule.pdf
 
-For Timeline:
+For Timeline: https://github.com/sankalpmittal1911-BitSian/Mask-RCNN-3D-Implementation/blob/master/Timeline.docx
 
