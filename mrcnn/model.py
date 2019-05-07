@@ -1,3 +1,5 @@
+"""Model.py"""
+
 import os
 import random
 import datetime
@@ -67,8 +69,8 @@ def compute_backbone_shapes(config, image_shape):
     # Currently supports ResNet only
     assert config.BACKBONE in ["resnet50", "resnet101"]
     return np.array([[int(math.ceil(image_shape[0] / stride)), int(math.ceil(image_shape[1] / stride)), int(math.ceil(image_shape[2] / stride))] for stride in config.BACKBONE_STRIDES])
-    
-    ############################################################
+
+############################################################
 #  Resnet Graph
 ############################################################
 
@@ -187,8 +189,8 @@ def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
     else:
         C5 = None
     return [C1, C2, C3, C4, C5]
-    
-    ############################################################
+
+############################################################
 #  Proposal Layer
 ############################################################
 
@@ -318,8 +320,8 @@ class ProposalLayer(KE.Layer):
 
     def compute_output_shape(self, input_shape):
         return (None, self.proposal_count, 6)
-        
- ############################################################
+
+############################################################
 #  ROIAlign Layer
 ############################################################
 
@@ -433,7 +435,7 @@ class PyramidROIAlign(KE.Layer):
 
     def compute_output_shape(self, input_shape):
         return input_shape[0][:2] + self.pool_shape + (input_shape[2][-1], )
-        
+
 ############################################################
 #  Detection Target Layer
 ############################################################
@@ -658,8 +660,7 @@ class DetectionTargetLayer(KE.Layer):
 
     def compute_mask(self, inputs, mask=None):
         return [None, None, None, None, None, None]
-        
-        
+
 ############################################################
 #  Detection Layer
 ############################################################
@@ -801,8 +802,7 @@ class DetectionLayer(KE.Layer):
 
     def compute_output_shape(self, input_shape):
         return (None, self.config.DETECTION_MAX_INSTANCES, 8)
-        
-        
+
 ############################################################
 #  Region Proposal Network (RPN)
 ############################################################
@@ -867,7 +867,7 @@ def build_rpn_model(anchor_stride, anchors_per_location, depth_map):
                                  name="input_rpn_feature_map")
     outputs = rpn_graph(input_feature_map, anchors_per_location, anchor_stride)
     return KM.Model([input_feature_map], outputs, name="rpn_model")
-    
+
 ############################################################
 #  Feature Pyramid Network Heads
 ############################################################
@@ -974,8 +974,7 @@ def build_fpn_mask_graph(rois, feature_maps, image_meta,
     x = KL.TimeDistributed(KL.Conv3D(num_classes, (1, 1, 1), strides=1, activation="sigmoid"),
                            name="mrcnn_mask")(x)
     return x
-    
-    
+
 ############################################################
 #  Loss Functions
 ############################################################
@@ -1783,7 +1782,7 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
             error_count += 1
             if error_count > 5:
                 raise
-                
+
 ############################################################
 #  MaskRCNN Class
 ############################################################
@@ -2762,7 +2761,7 @@ def mold_image(images, config):
 def unmold_image(normalized_images, config):
     """Takes a image normalized with mold() and returns the original."""
     return (normalized_images + config.MEAN_PIXEL).astype(np.uint8)
-    
+
 ############################################################
 #  Miscellenous Graph Functions
 ############################################################
@@ -2816,4 +2815,3 @@ def denorm_boxes_graph(boxes, shape):
     scale = tf.concat([h, w, d, h, w, d], axis=-1) - tf.constant(1.0)
     shift = tf.constant([0., 0., 0., 1., 1., 1.])
     return tf.cast(tf.round(tf.multiply(boxes, scale) + shift), tf.int32)
-
